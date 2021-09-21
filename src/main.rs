@@ -5,10 +5,10 @@ use std::collections::hash_map::DefaultHasher;
 use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
 
-#[derive(Clone, Copy, Debug, Hash)]
-struct Position(usize, usize);
+#[derive(Clone, Copy, Debug, Hash, PartialEq)]
+struct Position(isize, isize);
 
-#[derive(Copy, Clone, Hash, Debug)]
+#[derive(Copy, Clone, Hash, Debug, PartialEq)]
 enum Color {
     Blue,
     Yellow,
@@ -16,7 +16,7 @@ enum Color {
     Red,
 }
 
-#[derive(Clone, Debug, Hash)]
+#[derive(Clone, Debug, Hash, PartialEq)]
 struct Task {
     tiles: Vec<Color>,
     solved: bool,
@@ -31,7 +31,7 @@ impl Task {
     }
 }
 
-#[derive(Clone, Hash, Debug)]
+#[derive(Clone, Hash, Debug, PartialEq)]
 struct Tile {
     color: Color,
     cost: usize,
@@ -39,15 +39,22 @@ struct Tile {
 }
 
 impl Tile {
-    fn new(color: Color, cost: usize, tasks: Vec<Task>) -> Tile {
+    fn new(cost: usize, color: Color, tasks: Vec<Task>) -> Tile {
         Tile { color, cost, tasks }
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 struct Move {
     tile: Tile,
     position: Position,
+}
+
+impl Move {
+    #[cfg(test)]
+    fn new(tile: Tile, position: Position) -> Move {
+        Move { tile, position }
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -57,7 +64,12 @@ struct State {
 }
 
 impl State {
-    fn new(tiles: Vec<Tile>) -> State {
+    #[cfg(test)]
+    fn empty() -> State {
+        State::with_tiles(vec![])
+    }
+
+    fn with_tiles(tiles: Vec<Tile>) -> State {
         State {
             board: HashMap::new(),
             tiles,
@@ -143,8 +155,8 @@ impl MCTS for NovaLunaBoardGameMCTS {
 fn main() {
     let unplaced_tiles = vec![
         Tile::new(
-            Color::Yellow,
             6,
+            Color::Yellow,
             vec![
                 Task::new(vec![Color::Blue, Color::Blue, Color::Blue]),
                 Task::new(vec![Color::Teal, Color::Teal]),
@@ -152,8 +164,8 @@ fn main() {
             ],
         ),
         Tile::new(
-            Color::Red,
             7,
+            Color::Red,
             vec![
                 Task::new(vec![Color::Teal, Color::Blue]),
                 Task::new(vec![Color::Teal, Color::Yellow]),
@@ -161,8 +173,8 @@ fn main() {
             ],
         ),
         Tile::new(
+            2,
             Color::Blue,
-            2,
             vec![Task::new(vec![
                 Color::Blue,
                 Color::Blue,
@@ -171,8 +183,8 @@ fn main() {
             ])],
         ),
         Tile::new(
+            2,
             Color::Yellow,
-            2,
             vec![Task::new(vec![
                 Color::Yellow,
                 Color::Yellow,
@@ -181,16 +193,16 @@ fn main() {
             ])],
         ),
         Tile::new(
-            Color::Teal,
             4,
+            Color::Teal,
             vec![
                 Task::new(vec![Color::Blue, Color::Red]),
                 Task::new(vec![Color::Teal, Color::Yellow]),
             ],
         ),
         Tile::new(
-            Color::Teal,
             5,
+            Color::Teal,
             vec![
                 Task::new(vec![Color::Red, Color::Red]),
                 Task::new(vec![Color::Blue, Color::Blue]),
@@ -198,32 +210,32 @@ fn main() {
             ],
         ),
         Tile::new(
-            Color::Red,
             5,
+            Color::Red,
             vec![
                 Task::new(vec![Color::Yellow]),
                 Task::new(vec![Color::Blue, Color::Blue]),
             ],
         ),
         Tile::new(
-            Color::Yellow,
             5,
+            Color::Yellow,
             vec![
                 Task::new(vec![Color::Red]),
                 Task::new(vec![Color::Teal, Color::Teal]),
             ],
         ),
         Tile::new(
-            Color::Blue,
             5,
+            Color::Blue,
             vec![
                 Task::new(vec![Color::Teal]),
                 Task::new(vec![Color::Teal, Color::Teal, Color::Teal]),
             ],
         ),
         Tile::new(
-            Color::Blue,
             4,
+            Color::Blue,
             vec![
                 Task::new(vec![Color::Yellow, Color::Yellow]),
                 Task::new(vec![Color::Teal, Color::Teal, Color::Teal]),
@@ -231,8 +243,8 @@ fn main() {
             ],
         ),
         Tile::new(
-            Color::Teal,
             4,
+            Color::Teal,
             vec![
                 Task::new(vec![Color::Yellow, Color::Blue]),
                 Task::new(vec![Color::Teal, Color::Teal, Color::Teal]),
@@ -240,7 +252,7 @@ fn main() {
         ),
     ];
 
-    let game = State::new(unplaced_tiles);
+    let game = State::with_tiles(unplaced_tiles);
 
     let mut mcts = MCTSManager::new(
         game,
@@ -252,4 +264,40 @@ fn main() {
 
     mcts.playout_n_parallel(10000, 4);
     mcts.tree().debug_moves();
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn empty_state() {
+        let state = State::empty();
+        assert!(state.available_moves().is_empty());
+    }
+
+    #[test]
+    fn single_tile() {
+        let tile = Tile::new(1, Color::Yellow, vec![]);
+        let state = State::with_tiles(vec![tile.clone()]);
+        let moves = state.available_moves();
+        assert_eq!(1, moves.len());
+        assert_eq!(super::Move::new(tile, Position(0, 0)), moves[0]);
+    }
+
+    #[test]
+    fn two_tiles() {
+        let tile = Tile::new(1, Color::Yellow, vec![]);
+        let mut state = State::with_tiles(vec![tile.clone(), tile.clone()]);
+
+        state.make_move(&super::Move::new(tile.clone(), Position(0, 0)));
+
+        let moves = state.available_moves();
+
+        assert_eq!(4, moves.len());
+        assert!(moves.contains(&super::Move::new(tile.clone(), Position(1, 0))));
+        assert!(moves.contains(&super::Move::new(tile.clone(), Position(0, 1))));
+        assert!(moves.contains(&super::Move::new(tile.clone(), Position(-1, 0))));
+        assert!(moves.contains(&super::Move::new(tile.clone(), Position(0, -1))));
+    }
 }
