@@ -13,7 +13,8 @@ addons:
 cache: cargo
 
 before_install:
-  - pip install pre-commit --user
+  - python3 --version
+  - pip3 install pre-commit --user
   - rustup component add clippy
   - rustup component add rustfmt
 
