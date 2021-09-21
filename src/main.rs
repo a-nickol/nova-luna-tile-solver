@@ -2,7 +2,7 @@ use mcts::transposition_table::*;
 use mcts::tree_policy::*;
 use mcts::*;
 use std::collections::hash_map::DefaultHasher;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::hash::{Hash, Hasher};
 use std::iter;
 
@@ -24,7 +24,7 @@ impl Position {
     }
 }
 
-#[derive(Copy, Clone, Hash, Debug, PartialEq)]
+#[derive(Copy, Clone, Hash, Debug, PartialEq, Eq)]
 enum Color {
     Blue,
     Yellow,
@@ -32,7 +32,7 @@ enum Color {
     Red,
 }
 
-#[derive(Clone, Debug, Hash, PartialEq)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq)]
 struct Task {
     tiles: Vec<Color>,
     solved: bool,
@@ -47,7 +47,7 @@ impl Task {
     }
 }
 
-#[derive(Clone, Hash, Debug, PartialEq)]
+#[derive(Clone, Hash, Debug, PartialEq, Eq)]
 struct Tile {
     color: Color,
     cost: usize,
@@ -60,7 +60,7 @@ impl Tile {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 struct Move {
     tile: Tile,
     position: Position,
@@ -100,26 +100,24 @@ impl GameState for State {
     fn current_player(&self) -> Self::Player {}
 
     fn available_moves(&self) -> Vec<Move> {
-        if self.board.is_empty() {
-            return self
-                .tiles
+        let empty_positions = if self.board.is_empty() {
+            vec![Position(0, 0)]
+        } else {
+            self.board
                 .iter()
-                .map(|t| Move::new(t.clone(), Position(0, 0)))
-                .collect();
-        }
+                .flat_map(|(pos, _)| (*pos).adjacent())
+                .filter(|pos| !self.board.contains_key(pos))
+                .collect()
+        };
 
-        let positions: Vec<Position> = self
-            .board
+        let set: HashSet<Move> = self
+            .tiles
             .iter()
-            .flat_map(|(pos, _)| (*pos).adjacent())
-            .filter(|pos| !self.board.contains_key(pos))
+            .flat_map(|t| empty_positions.iter().copied().zip(iter::repeat(t)))
+            .map(|(pos, tile): (Position, &Tile)| Move::new(tile.clone(), pos))
             .collect();
 
-        self.tiles
-            .iter()
-            .flat_map(|t| positions.iter().copied().zip(iter::repeat(t)))
-            .map(|(pos, tile): (Position, &Tile)| Move::new(tile.clone(), pos))
-            .collect()
+        set.into_iter().collect()
     }
 
     fn make_move(&mut self, mov: &Self::Move) {
