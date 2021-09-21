@@ -52,8 +52,17 @@ struct Move {
 
 #[derive(Clone, Debug)]
 struct State {
-    placed_tiles: HashMap<Position, Tile>,
-    unplaced_tiles: Vec<Tile>,
+    board: HashMap<Position, Tile>,
+    tiles: Vec<Tile>,
+}
+
+impl State {
+    fn new(tiles: Vec<Tile>) -> State {
+        State {
+            board: HashMap::new(),
+            tiles,
+        }
+    }
 }
 
 impl GameState for State {
@@ -75,13 +84,13 @@ impl GameState for State {
 impl TranspositionHash for State {
     fn hash(&self) -> u64 {
         let mut h: u64 = 0;
-        for elt in &self.placed_tiles {
+        for elt in &self.board {
             let mut hasher = DefaultHasher::new();
             elt.hash(&mut hasher);
             h ^= hasher.finish();
         }
         let mut hasher = DefaultHasher::new();
-        self.unplaced_tiles.hash(&mut hasher);
+        self.tiles.hash(&mut hasher);
         h ^= hasher.finish();
         h
     }
@@ -231,10 +240,7 @@ fn main() {
         ),
     ];
 
-    let game = State {
-        placed_tiles: HashMap::new(),
-        unplaced_tiles,
-    };
+    let game = State::new(unplaced_tiles);
 
     let mut mcts = MCTSManager::new(
         game,
@@ -244,6 +250,6 @@ fn main() {
         ApproxTable::new(1024),
     );
 
-    mcts.playout_n_parallel(10000, 4); // 10000 playouts, 4 search threads
+    mcts.playout_n_parallel(10000, 4);
     mcts.tree().debug_moves();
 }
