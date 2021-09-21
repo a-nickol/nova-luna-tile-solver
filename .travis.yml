@@ -18,8 +18,9 @@ cache:
 
 before_install:
   - python3.7 --version
-  - pip3.7 install --upgrade setuptools pip --user
-  - pip3.7 install pre-commit --user
+  - python3.7 -m pip install pip --user
+  - pip install --upgrade setuptools pip --user
+  - pip install pre-commit --user
   - rustup component add clippy
   - rustup component add rustfmt
 
