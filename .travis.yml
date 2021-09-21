@@ -3,3 +3,13 @@ rust:
   - stable
   - beta
   - nightly
+
+cache: cargo
+
+before_install:
+  - pip install pre-commit
+  - rustup component add clippy
+  - rustup component add fmt
+
+before_script:
+  - pre-commit run --all-files
