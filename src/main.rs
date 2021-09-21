@@ -4,9 +4,25 @@ use mcts::*;
 use std::collections::hash_map::DefaultHasher;
 use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
+use std::iter;
 
-#[derive(Clone, Copy, Debug, Hash, PartialEq)]
+#[derive(Clone, Copy, Debug, Hash, PartialEq, Eq)]
 struct Position(isize, isize);
+
+impl Position {
+    fn adjacent(&self) -> [Position; 4] {
+        let mut result = [Position(0, 0); 4];
+        result[0] = self.offset(1, 0);
+        result[1] = self.offset(0, 1);
+        result[2] = self.offset(-1, 0);
+        result[3] = self.offset(0, -1);
+        result
+    }
+
+    fn offset(&self, x: isize, y: isize) -> Position {
+        Position(self.0 + x, self.1 + y)
+    }
+}
 
 #[derive(Copy, Clone, Hash, Debug, PartialEq)]
 enum Color {
@@ -51,7 +67,6 @@ struct Move {
 }
 
 impl Move {
-    #[cfg(test)]
     fn new(tile: Tile, position: Position) -> Move {
         Move { tile, position }
     }
@@ -85,11 +100,36 @@ impl GameState for State {
     fn current_player(&self) -> Self::Player {}
 
     fn available_moves(&self) -> Vec<Move> {
-        todo!()
+        if self.board.is_empty() {
+            return self
+                .tiles
+                .iter()
+                .map(|t| Move::new(t.clone(), Position(0, 0)))
+                .collect();
+        }
+
+        let positions: Vec<Position> = self
+            .board
+            .iter()
+            .flat_map(|(pos, _)| (*pos).adjacent())
+            .filter(|pos| !self.board.contains_key(pos))
+            .collect();
+
+        self.tiles
+            .iter()
+            .flat_map(|t| positions.iter().copied().zip(iter::repeat(t)))
+            .map(|(pos, tile): (Position, &Tile)| Move::new(tile.clone(), pos))
+            .collect()
     }
 
-    fn make_move(&mut self, _mov: &Self::Move) {
-        todo!()
+    fn make_move(&mut self, mov: &Self::Move) {
+        let idx = self
+            .tiles
+            .iter()
+            .position(|t| *t == mov.tile)
+            .expect("cannot find played tile");
+        self.tiles.remove(idx);
+        self.board.insert(mov.position, mov.tile.clone());
     }
 }
 
@@ -299,5 +339,79 @@ mod test {
         assert!(moves.contains(&super::Move::new(tile.clone(), Position(0, 1))));
         assert!(moves.contains(&super::Move::new(tile.clone(), Position(-1, 0))));
         assert!(moves.contains(&super::Move::new(tile.clone(), Position(0, -1))));
+    }
+
+    #[test]
+    fn three_tiles() {
+        let tile = Tile::new(1, Color::Yellow, vec![]);
+        let mut state = State::with_tiles(vec![tile.clone(), tile.clone(), tile.clone()]);
+
+        state.make_move(&super::Move::new(tile.clone(), Position(0, 0)));
+        state.make_move(&super::Move::new(tile.clone(), Position(1, 0)));
+
+        let moves = state.available_moves();
+
+        assert_eq!(6, moves.len());
+
+        assert!(moves.contains(&super::Move::new(tile.clone(), Position(2, 0))));
+        assert!(moves.contains(&super::Move::new(tile.clone(), Position(1, 1))));
+        assert!(moves.contains(&super::Move::new(tile.clone(), Position(1, -1))));
+        assert!(moves.contains(&super::Move::new(tile.clone(), Position(0, 1))));
+        assert!(moves.contains(&super::Move::new(tile.clone(), Position(-1, 0))));
+        assert!(moves.contains(&super::Move::new(tile.clone(), Position(0, -1))));
+    }
+
+    #[test]
+    fn two_available_tiles() {
+        let tile1 = Tile::new(1, Color::Yellow, vec![]);
+        let tile2 = Tile::new(2, Color::Blue, vec![Task::new(vec![Color::Teal])]);
+
+        let mut state = State::with_tiles(vec![
+            tile1.clone(),
+            tile1.clone(),
+            tile1.clone(),
+            tile2.clone(),
+        ]);
+
+        state.make_move(&super::Move::new(tile1.clone(), Position(0, 0)));
+        state.make_move(&super::Move::new(tile1.clone(), Position(1, 0)));
+
+        let moves = state.available_moves();
+
+        assert_eq!(12, moves.len());
+
+        assert!(moves.contains(&super::Move::new(tile1.clone(), Position(2, 0))));
+        assert!(moves.contains(&super::Move::new(tile1.clone(), Position(1, 1))));
+        assert!(moves.contains(&super::Move::new(tile2.clone(), Position(2, 0))));
+        assert!(moves.contains(&super::Move::new(tile2.clone(), Position(1, 1))));
+    }
+
+    #[test]
+    fn four_tiles() {
+        let tile1 = Tile::new(1, Color::Yellow, vec![]);
+        let tile2 = Tile::new(2, Color::Blue, vec![Task::new(vec![Color::Teal])]);
+
+        let mut state = State::with_tiles(vec![
+            tile1.clone(),
+            tile1.clone(),
+            tile1.clone(),
+            tile2.clone(),
+        ]);
+
+        state.make_move(&super::Move::new(tile1.clone(), Position(0, 0)));
+        state.make_move(&super::Move::new(tile1.clone(), Position(1, 0)));
+        state.make_move(&super::Move::new(tile1.clone(), Position(0, -1)));
+
+        let moves = state.available_moves();
+
+        assert_eq!(7, moves.len());
+
+        assert!(moves.contains(&super::Move::new(tile2.clone(), Position(2, 0))));
+        assert!(moves.contains(&super::Move::new(tile2.clone(), Position(1, 1))));
+        assert!(moves.contains(&super::Move::new(tile2.clone(), Position(1, 1))));
+        assert!(moves.contains(&super::Move::new(tile2.clone(), Position(1, -1))));
+        assert!(moves.contains(&super::Move::new(tile2.clone(), Position(0, 1))));
+        assert!(moves.contains(&super::Move::new(tile2.clone(), Position(-1, -1))));
+        assert!(moves.contains(&super::Move::new(tile2.clone(), Position(0, -2))));
     }
 }
