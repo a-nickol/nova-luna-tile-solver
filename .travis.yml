@@ -15,7 +15,7 @@ cache: cargo
 before_install:
   - python3 --version
   - pip3 install --upgrade setuptools pip --user
-  - pip3 install pre-commit --user
+  - pip install pre-commit --user
   - rustup component add clippy
   - rustup component add rustfmt
 
