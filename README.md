@@ -1,6 +1,6 @@
 # nova-luna-tile-solver [![Build Status](https://app.travis-ci.com/anickol/nova-luna-tile-solver.svg?branch=main)](https://app.travis-ci.com/anickol/nova-luna-tile-solver)
 
-This repository hosts a [Monte Carlo tree search] solver for the tile placing part of the [Nova Luna] board game. 
+This repository hosts a [Monte Carlo tree search] solver for the tile placing part of the [Nova Luna] board game.
 
 The development is still in progress.
 
@@ -9,7 +9,7 @@ The development is still in progress.
 
 ## Dependencies
 
-The solver depends uses Monte Carlo Tree Search and uses [MCTS](https://crates.io/crates/mcts) to accomplish this. 
+The solver depends uses Monte Carlo Tree Search and uses [MCTS](https://crates.io/crates/mcts) to accomplish this.
 
 ## Installation
 
@@ -25,7 +25,7 @@ To be defined.
 
 ## How to test the software
 
-The unit-tests of this repository can be used to test the functionality of this library. 
+The unit-tests of this repository can be used to test the functionality of this library.
 
 ## Known issues
 

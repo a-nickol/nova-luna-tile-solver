@@ -3,7 +3,7 @@ use mcts::tree_policy::*;
 use mcts::*;
 use std::collections::hash_map::DefaultHasher;
 use std::collections::HashMap;
-use std::hash::{Hasher, Hash};
+use std::hash::{Hash, Hasher};
 
 #[derive(Clone, Copy, Debug, Hash)]
 struct Position(usize, usize);
@@ -61,9 +61,7 @@ impl GameState for State {
     type Player = ();
     type MoveList = Vec<Move>;
 
-    fn current_player(&self) -> Self::Player {
-        ()
-    }
+    fn current_player(&self) -> Self::Player {}
 
     fn available_moves(&self) -> Vec<Move> {
         todo!()
@@ -76,7 +74,7 @@ impl GameState for State {
 
 impl TranspositionHash for State {
     fn hash(&self) -> u64 {
-        let mut h :u64 = 0;
+        let mut h: u64 = 0;
         for elt in &self.placed_tiles {
             let mut hasher = DefaultHasher::new();
             elt.hash(&mut hasher);
@@ -134,114 +132,104 @@ impl MCTS for NovaLunaBoardGameMCTS {
 }
 
 fn main() {
-    let mut unplaced_tiles = vec![];
-
-    unplaced_tiles.push(Tile::new(
-        Color::Yellow,
-        6,
-        vec![
-            Task::new(vec![Color::Blue, Color::Blue, Color::Blue]),
-            Task::new(vec![Color::Teal, Color::Teal]),
-            Task::new(vec![Color::Teal, Color::Blue]),
-        ],
-    ));
-
-    unplaced_tiles.push(Tile::new(
-        Color::Red,
-        7,
-        vec![
-            Task::new(vec![Color::Teal, Color::Blue]),
-            Task::new(vec![Color::Teal, Color::Yellow]),
-            Task::new(vec![Color::Yellow, Color::Blue]),
-        ],
-    ));
-
-    unplaced_tiles.push(Tile::new(
-        Color::Blue,
-        2,
-        vec![Task::new(vec![
-            Color::Blue,
-            Color::Blue,
-            Color::Blue,
-            Color::Blue,
-        ])],
-    ));
-
-    unplaced_tiles.push(Tile::new(
-        Color::Yellow,
-        2,
-        vec![Task::new(vec![
+    let unplaced_tiles = vec![
+        Tile::new(
             Color::Yellow,
+            6,
+            vec![
+                Task::new(vec![Color::Blue, Color::Blue, Color::Blue]),
+                Task::new(vec![Color::Teal, Color::Teal]),
+                Task::new(vec![Color::Teal, Color::Blue]),
+            ],
+        ),
+        Tile::new(
+            Color::Red,
+            7,
+            vec![
+                Task::new(vec![Color::Teal, Color::Blue]),
+                Task::new(vec![Color::Teal, Color::Yellow]),
+                Task::new(vec![Color::Yellow, Color::Blue]),
+            ],
+        ),
+        Tile::new(
+            Color::Blue,
+            2,
+            vec![Task::new(vec![
+                Color::Blue,
+                Color::Blue,
+                Color::Blue,
+                Color::Blue,
+            ])],
+        ),
+        Tile::new(
             Color::Yellow,
+            2,
+            vec![Task::new(vec![
+                Color::Yellow,
+                Color::Yellow,
+                Color::Yellow,
+                Color::Yellow,
+            ])],
+        ),
+        Tile::new(
+            Color::Teal,
+            4,
+            vec![
+                Task::new(vec![Color::Blue, Color::Red]),
+                Task::new(vec![Color::Teal, Color::Yellow]),
+            ],
+        ),
+        Tile::new(
+            Color::Teal,
+            5,
+            vec![
+                Task::new(vec![Color::Red, Color::Red]),
+                Task::new(vec![Color::Blue, Color::Blue]),
+                Task::new(vec![Color::Teal, Color::Teal]),
+            ],
+        ),
+        Tile::new(
+            Color::Red,
+            5,
+            vec![
+                Task::new(vec![Color::Yellow]),
+                Task::new(vec![Color::Blue, Color::Blue]),
+            ],
+        ),
+        Tile::new(
             Color::Yellow,
-            Color::Yellow,
-        ])],
-    ));
-
-    unplaced_tiles.push(Tile::new(
-        Color::Teal,
-        4,
-        vec![
-            Task::new(vec![Color::Blue, Color::Red]),
-            Task::new(vec![Color::Teal, Color::Yellow]),
-        ],
-    ));
-
-    unplaced_tiles.push(Tile::new(
-        Color::Teal,
-        5,
-        vec![
-            Task::new(vec![Color::Red, Color::Red]),
-            Task::new(vec![Color::Blue, Color::Blue]),
-            Task::new(vec![Color::Teal, Color::Teal]),
-        ],
-    ));
-
-    unplaced_tiles.push(Tile::new(
-        Color::Red,
-        5,
-        vec![
-            Task::new(vec![Color::Yellow]),
-            Task::new(vec![Color::Blue, Color::Blue]),
-        ],
-    ));
-
-    unplaced_tiles.push(Tile::new(
-        Color::Yellow,
-        5,
-        vec![
-            Task::new(vec![Color::Red]),
-            Task::new(vec![Color::Teal, Color::Teal]),
-        ],
-    ));
-
-    unplaced_tiles.push(Tile::new(
-        Color::Blue,
-        5,
-        vec![
-            Task::new(vec![Color::Teal]),
-            Task::new(vec![Color::Teal, Color::Teal, Color::Teal]),
-        ],
-    ));
-
-    unplaced_tiles.push(Tile::new(
-        Color::Blue,
-        4,
-        vec![
-            Task::new(vec![Color::Yellow, Color::Yellow]),
-            Task::new(vec![Color::Teal, Color::Teal, Color::Teal]),
-            Task::new(vec![Color::Red, Color::Red, Color::Red]),
-        ],
-    ));
-
-    unplaced_tiles.push(Tile::new(
-        Color::Teal,
-        4,
-        vec![
-            Task::new(vec![Color::Yellow, Color::Blue]),
-            Task::new(vec![Color::Teal, Color::Teal, Color::Teal]),
-        ],
-    ));
+            5,
+            vec![
+                Task::new(vec![Color::Red]),
+                Task::new(vec![Color::Teal, Color::Teal]),
+            ],
+        ),
+        Tile::new(
+            Color::Blue,
+            5,
+            vec![
+                Task::new(vec![Color::Teal]),
+                Task::new(vec![Color::Teal, Color::Teal, Color::Teal]),
+            ],
+        ),
+        Tile::new(
+            Color::Blue,
+            4,
+            vec![
+                Task::new(vec![Color::Yellow, Color::Yellow]),
+                Task::new(vec![Color::Teal, Color::Teal, Color::Teal]),
+                Task::new(vec![Color::Red, Color::Red, Color::Red]),
+            ],
+        ),
+        Tile::new(
+            Color::Teal,
+            4,
+            vec![
+                Task::new(vec![Color::Yellow, Color::Blue]),
+                Task::new(vec![Color::Teal, Color::Teal, Color::Teal]),
+            ],
+        ),
+    ];
 
     let game = State {
         placed_tiles: HashMap::new(),
