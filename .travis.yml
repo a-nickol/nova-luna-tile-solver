@@ -10,7 +10,7 @@ cache: cargo
 before_install:
   - pip install pre-commit --user
   - rustup component add clippy
-  - rustup component add fmt
+  - rustup component add rustfmt
 
 before_script:
   - pre-commit run --all-files
