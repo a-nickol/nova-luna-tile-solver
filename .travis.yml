@@ -5,6 +5,11 @@ rust:
   - beta
   - nightly
 
+addons:
+  apt:
+    packages:
+      - python3-pip
+
 cache: cargo
 
 before_install:
