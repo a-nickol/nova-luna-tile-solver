@@ -5,6 +5,10 @@ rust:
   - beta
   - nightly
 
+
+env:
+  - PYENV_VERSION='3.7.1
+
 addons:
   apt:
     packages:
@@ -13,9 +17,11 @@ addons:
 cache: cargo
 
 before_install:
+  - wget https://github.com/praekeltfoundation/travis-pyenv/releases/download/0.4.0/setup-pyenv.sh
+  - source setup-pyenv.sh
   - python3 --version
   - pip3 install --upgrade setuptools pip --user
-  - pip install pre-commit --user
+  - pip3 install pre-commit --user
   - rustup component add clippy
   - rustup component add rustfmt
 
