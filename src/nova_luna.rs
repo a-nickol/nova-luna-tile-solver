@@ -33,16 +33,66 @@ pub enum Color {
 
 #[derive(Clone, Debug, Hash, PartialEq, Eq)]
 pub struct Task {
-    tiles: Vec<Color>,
+    colors: Vec<Color>,
     solved: bool,
 }
 
 impl Task {
-    pub fn new(tiles: Vec<Color>) -> Task {
+    pub fn new(colors: Vec<Color>) -> Task {
         Task {
-            tiles,
+            colors,
             solved: false,
         }
+    }
+
+    fn search_for_adjacent_tiles_matching_color(
+        position: Position,
+        color: Color,
+        board: &HashMap<Position, Tile>,
+    ) -> Vec<Position> {
+        let mut visited_positions = HashSet::new();
+        let mut unvisited_positions = vec![position];
+        let mut adjacent_tiles = vec![];
+        while let Some(pos) = unvisited_positions.pop() {
+            if !visited_positions.contains(&pos) {
+                visited_positions.insert(pos);
+                if let Some(tile) = board.get(&pos) {
+                    if tile.color == color {
+                        adjacent_tiles.push(pos);
+                        for p in pos.adjacent() {
+                            unvisited_positions.push(p);
+                        }
+                    }
+                }
+            }
+        }
+        adjacent_tiles
+    }
+
+    fn is_solved(&self, pos: Position, state: &HashMap<Position, Tile>) -> bool {
+        let mut map = HashMap::new();
+        for p in pos.adjacent() {
+            if let Some(tile) = state.get(&p) {
+                let mut vec = Task::search_for_adjacent_tiles_matching_color(p, tile.color, state);
+                let idx = vec.iter().position(|p| pos == *p);
+                if let Some(idx) = idx {
+                    vec.remove(idx);
+                }
+                let entry = map.entry(&tile.color).or_insert(0);
+                *entry += vec.len();
+            }
+        }
+
+        let mut found_colors = self.colors.clone();
+        for (color, num) in map {
+            for _ in 0..num {
+                let found_color = found_colors.iter().position(|c| c == color);
+                if let Some(idx) = found_color {
+                    found_colors.remove(idx);
+                }
+            }
+        }
+        found_colors.is_empty()
     }
 }
 
@@ -127,6 +177,14 @@ impl GameState for State {
             .expect("cannot find played tile");
         self.tiles.remove(idx);
         self.board.insert(mov.position, mov.tile.clone());
+
+        for (pos, tile) in self.board.clone() {
+            for (idx, task) in tile.tasks.iter().enumerate() {
+                if !task.solved && task.is_solved(pos, &self.board) {
+                    self.board.get_mut(&pos).unwrap().tasks[idx].solved = true;
+                }
+            }
+        }
     }
 }
 
@@ -252,5 +310,54 @@ mod test {
         assert!(moves.contains(&super::Move::new(tile2.clone(), Position(0, 1))));
         assert!(moves.contains(&super::Move::new(tile2.clone(), Position(-1, -1))));
         assert!(moves.contains(&super::Move::new(tile2.clone(), Position(0, -2))));
+    }
+
+    #[test]
+    fn solve_simple_task() {
+        let tile1 = Tile::new(1, Color::Teal, vec![]);
+        let tile2 = Tile::new(2, Color::Blue, vec![Task::new(vec![Color::Teal])]);
+
+        let mut state = State::with_tiles(vec![tile1.clone(), tile2.clone()]);
+
+        state.make_move(&super::Move::new(tile1.clone(), Position(0, 0)));
+        state.make_move(&super::Move::new(tile2.clone(), Position(1, 0)));
+
+        let option = state.board.get(&Position(1, 0));
+        assert!(option.is_some());
+        let tile = option.unwrap();
+
+        let option = tile.tasks.get(0);
+        assert!(option.is_some());
+        let task = option.unwrap();
+
+        assert!(task.solved);
+    }
+
+    #[test]
+    fn solve_task_with_tile_group() {
+        let tile1 = Tile::new(
+            1,
+            Color::Teal,
+            vec![Task::new(vec![Color::Teal, Color::Teal])],
+        );
+        let tile2 = Tile::new(
+            2,
+            Color::Blue,
+            vec![Task::new(vec![Color::Teal, Color::Teal])],
+        );
+
+        let mut state = State::with_tiles(vec![tile1.clone(), tile1.clone(), tile2.clone()]);
+
+        state.make_move(&super::Move::new(tile1.clone(), Position(0, 0)));
+        state.make_move(&super::Move::new(tile1.clone(), Position(1, 0)));
+        state.make_move(&super::Move::new(tile2.clone(), Position(2, 0)));
+
+        let tile = state.board.get(&Position(2, 0)).unwrap();
+        let task = tile.tasks.get(0).unwrap();
+        assert!(task.solved);
+
+        let tile = state.board.get(&Position(0, 0)).unwrap();
+        let task = tile.tasks.get(0).unwrap();
+        assert!(!task.solved);
     }
 }
