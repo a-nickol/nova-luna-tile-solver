@@ -10,11 +10,11 @@ impl Evaluator<NovaLunaBoardGameMCTS> for StateEvaluator {
 
     fn evaluate_new_state(
         &self,
-        _state: &State,
+        state: &State,
         _moves: &Vec<Move>,
         _: Option<SearchHandle<NovaLunaBoardGameMCTS>>,
     ) -> (Vec<()>, i64) {
-        todo!()
+        (vec![], state.count_solved_tasks() as i64)
     }
 
     fn interpret_evaluation_for_player(&self, evaln: &i64, _player: &()) -> i64 {

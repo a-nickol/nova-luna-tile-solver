@@ -139,6 +139,14 @@ impl State {
             tiles,
         }
     }
+
+    pub fn count_solved_tasks(&self) -> usize {
+        self.board
+            .iter()
+            .flat_map(|(_pos, tile)| tile.tasks.iter())
+            .filter(|tile| tile.solved)
+            .count()
+    }
 }
 
 impl GameState for State {
@@ -359,5 +367,7 @@ mod test {
         let tile = state.board.get(&Position(0, 0)).unwrap();
         let task = tile.tasks.get(0).unwrap();
         assert!(!task.solved);
+
+        assert_eq!(1, state.count_solved_tasks())
     }
 }
