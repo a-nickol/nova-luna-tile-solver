@@ -108,6 +108,7 @@ fn main() {
         ),
     ];
 
+    let num_tiles = unplaced_tiles.len();
     let game = State::with_tiles(unplaced_tiles);
 
     let mut mcts = MCTSManager::new(
@@ -119,5 +120,7 @@ fn main() {
     );
 
     mcts.playout_n_parallel(10000, 4);
-    mcts.tree().debug_moves();
+    for m in mcts.principal_variation(num_tiles) {
+        eprintln!("{:?}", m);
+    }
 }
