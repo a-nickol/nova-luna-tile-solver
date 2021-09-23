@@ -24,24 +24,31 @@ impl Position {
 }
 
 #[derive(Copy, Clone, Hash, Debug, PartialEq, Eq)]
+#[repr(u8)]
 pub enum Color {
-    Blue,
-    Yellow,
-    Teal,
-    Red,
+    Blue = 0,
+    Yellow = 1,
+    Teal = 2,
+    Red = 3,
 }
 
 #[derive(Clone, Debug, Hash, PartialEq, Eq)]
 pub struct Task {
     colors: Vec<Color>,
     solved: bool,
+    has_colors: Vec<bool>,
 }
 
 impl Task {
     pub fn new(colors: Vec<Color>) -> Task {
+        let has_colors = [Color::Blue, Color::Yellow, Color::Teal, Color::Red]
+            .iter()
+            .map(|c| colors.contains(c))
+            .collect();
         Task {
             colors,
             solved: false,
+            has_colors,
         }
     }
 
@@ -67,6 +74,10 @@ impl Task {
             }
         }
         adjacent_tiles
+    }
+
+    fn has_color(&self, color: Color) -> bool {
+        self.has_colors[(color as usize)]
     }
 
     fn is_solved(&self, pos: Position, state: &HashMap<Position, Tile>) -> bool {
@@ -147,6 +158,46 @@ impl State {
             .filter(|tile| tile.solved)
             .count()
     }
+    /*
+    pub fn render_board<S: AsRef<str>>(&self, path: S) {
+        if self.board.is_empty() {
+            return;
+        }
+
+        let left = self.board.keys().min_by_key(|p| p.0).unwrap().0;
+        let bottom = self.board.keys().min_by_key(|p| p.1).unwrap().1;
+        let right = self.board.keys().max_by_key(|p| p.0).unwrap().0;
+        let top = self.board.keys().max_by_key(|p| p.1).unwrap().1;
+
+        let tile_size = 100;
+
+        let width = (right - left) * tile_size;
+        let height = (top - bottom) * tile_size;
+
+        let offset = (-left, -bottom);
+
+        // create a canvas to draw on
+        let mut canvas = Canvas::new(width as u32, height as u32);
+
+        for (pos, tile) in &self.board {
+            let rect = Drawing::new()
+                // give it a shape
+                .with_shape(Shape::Rectangle {
+                    width: 80,
+                    height: 80,
+                })
+                // move it around
+                .with_xy(
+                    (tile_size * (pos.0 + offset.0)) as f32,
+                    (tile_size * (pos.1 + offset.1)) as f32,
+                )
+                // give it a cool style
+                .with_style(Style::filled(tile.color.into()));
+            canvas.display_list.add(rect);
+        }
+
+        draw::render::save(&canvas, path.as_ref(), SvgRenderer::new()).expect("Failed to save")
+    }*/
 }
 
 impl GameState for State {
@@ -188,7 +239,10 @@ impl GameState for State {
 
         for (pos, tile) in self.board.clone() {
             for (idx, task) in tile.tasks.iter().enumerate() {
-                if !task.solved && task.is_solved(pos, &self.board) {
+                if !task.solved
+                    && (pos == mov.position || task.has_color(mov.tile.color))
+                    && task.is_solved(pos, &self.board)
+                {
                     self.board.get_mut(&pos).unwrap().tasks[idx].solved = true;
                 }
             }

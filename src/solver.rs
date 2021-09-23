@@ -17,16 +17,16 @@ impl Evaluator<NovaLunaBoardGameMCTS> for StateEvaluator {
         (vec![()], state.count_solved_tasks() as i64)
     }
 
-    fn interpret_evaluation_for_player(&self, evaln: &i64, _player: &()) -> i64 {
-        *evaln
-    }
-
     fn evaluate_existing_state(
         &self,
         _: &State,
         evaln: &i64,
         _: SearchHandle<NovaLunaBoardGameMCTS>,
     ) -> i64 {
+        *evaln
+    }
+
+    fn interpret_evaluation_for_player(&self, evaln: &i64, _player: &()) -> i64 {
         *evaln
     }
 }
@@ -37,10 +37,10 @@ pub struct NovaLunaBoardGameMCTS;
 impl MCTS for NovaLunaBoardGameMCTS {
     type State = State;
     type Eval = StateEvaluator;
-    type NodeData = ();
-    type ExtraThreadData = ();
     type TreePolicy = UCTPolicy;
+    type NodeData = ();
     type TranspositionTable = ApproxTable<Self>;
+    type ExtraThreadData = ();
 
     fn cycle_behaviour(&self) -> CycleBehaviour<Self> {
         CycleBehaviour::UseCurrentEvalWhenCycleDetected
