@@ -132,4 +132,6 @@ fn main() {
     eprintln!("{}", game.count_solved_tasks());
 
     eprintln!("elapsed: {:?}", start.elapsed());
+
+    game.render_board();
 }
