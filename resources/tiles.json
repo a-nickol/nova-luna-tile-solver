@@ -1,0 +1,170 @@
+[
+  {
+    "color": "Yellow",
+    "cost": 6,
+    "tasks": [
+      [
+        "Blue",
+        "Blue",
+        "Blue"
+      ],
+      [
+        "Teal",
+        "Teal"
+      ],
+      [
+        "Teal",
+        "Blue"
+      ]
+    ]
+  },
+  {
+    "color": "Red",
+    "cost": 7,
+    "tasks": [
+      [
+        "Teal",
+        "Blue"
+      ],
+      [
+        "Teal",
+        "Yellow"
+      ],
+      [
+        "Yellow",
+        "Blue"
+      ]
+    ]
+  },
+  {
+    "color": "Blue",
+    "cost": 2,
+    "tasks": [
+      [
+        "Blue",
+        "Blue",
+        "Blue",
+        "Blue"
+      ]
+    ]
+  },
+  {
+    "color": "Yellow",
+    "cost": 2,
+    "tasks": [
+      [
+        "Yellow",
+        "Yellow",
+        "Yellow",
+        "Yellow"
+      ]
+    ]
+  },
+  {
+    "color": "Teal",
+    "cost": 4,
+    "tasks": [
+      [
+        "Blue",
+        "Red"
+      ],
+      [
+        "Teal",
+        "Yellow"
+      ]
+    ]
+  },
+  {
+    "color": "Teal",
+    "cost": 5,
+    "tasks": [
+      [
+        "Red",
+        "Red"
+      ],
+      [
+        "Blue",
+        "Blue"
+      ],
+      [
+        "Teal",
+        "Teal"
+      ]
+    ]
+  },
+  {
+    "color": "Red",
+    "cost": 5,
+    "tasks": [
+      [
+        "Yellow"
+      ],
+      [
+        "Blue",
+        "Blue"
+      ]
+    ]
+  },
+  {
+    "color": "Yellow",
+    "cost": 5,
+    "tasks": [
+      [
+        "Red"
+      ],
+      [
+        "Teal",
+        "Teal"
+      ]
+    ]
+  },
+  {
+    "color": "Blue",
+    "cost": 5,
+    "tasks": [
+      [
+        "Teal"
+      ],
+      [
+        "Teal",
+        "Teal",
+        "Teal"
+      ]
+    ]
+  },
+  {
+    "color": "Blue",
+    "cost": 4,
+    "tasks": [
+      [
+        "Yellow",
+        "Yellow"
+      ],
+      [
+        "Teal",
+        "Teal",
+        "Teal"
+      ],
+      [
+        "Red",
+        "Red",
+        "Red"
+      ]
+    ]
+  },
+  {
+    "color": "Teal",
+    "cost": 4,
+    "tasks": [
+      [
+        "Yellow",
+        "Blue"
+      ],
+      [
+        "Teal",
+        "Teal",
+        "Teal"
+      ]
+    ]
+  }
+]

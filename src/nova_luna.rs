@@ -1,13 +1,13 @@
-use fltk::{app, draw, enums::Font, frame::Frame, prelude::*, window::Window};
 use mcts::transposition_table::TranspositionHash;
 use mcts::GameState;
+use serde::ser::SerializeSeq;
+use serde::{Deserialize, Serialize, Serializer};
 use std::collections::hash_map::DefaultHasher;
 use std::collections::{HashMap, HashSet};
 use std::hash::{Hash, Hasher};
 use std::iter;
-use std::sync::Arc;
 
-#[derive(Clone, Copy, Debug, Hash, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, Hash, PartialEq, Eq, Serialize)]
 pub struct Position(isize, isize);
 
 impl Position {
@@ -25,7 +25,7 @@ impl Position {
     }
 }
 
-#[derive(Copy, Clone, Hash, Debug, PartialEq, Eq)]
+#[derive(Copy, Clone, Hash, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[repr(u8)]
 pub enum Color {
     Blue = 0,
@@ -34,22 +34,22 @@ pub enum Color {
     Red = 3,
 }
 
-impl From<Color> for fltk::enums::Color {
-    fn from(color: Color) -> Self {
-        match color {
-            Color::Blue => fltk::enums::Color::from_rgb(0, 0, 255),
-            Color::Yellow => fltk::enums::Color::from_rgb(255, 255, 0),
-            Color::Teal => fltk::enums::Color::from_rgb(0, 128, 128),
-            Color::Red => fltk::enums::Color::from_rgb(255, 0, 0),
-        }
-    }
-}
-
-#[derive(Clone, Debug, Hash, PartialEq, Eq)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(from = "VecColors")]
 pub struct Task {
     colors: Vec<Color>,
     solved: bool,
+    #[serde(skip_serializing, skip_deserializing)]
     has_colors: Vec<bool>,
+}
+
+#[derive(Deserialize)]
+pub struct VecColors(Vec<Color>);
+
+impl From<VecColors> for Task {
+    fn from(other: VecColors) -> Task {
+        Task::new(other.0)
+    }
 }
 
 impl Task {
@@ -120,7 +120,7 @@ impl Task {
     }
 }
 
-#[derive(Clone, Hash, Debug, PartialEq, Eq)]
+#[derive(Clone, Hash, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Tile {
     color: Color,
     cost: usize,
@@ -128,6 +128,7 @@ pub struct Tile {
 }
 
 impl Tile {
+    #[cfg(test)]
     pub fn new(cost: usize, color: Color, tasks: Vec<Task>) -> Tile {
         Tile { color, cost, tasks }
     }
@@ -171,178 +172,24 @@ impl State {
             .filter(|tile| tile.solved)
             .count()
     }
+}
 
-    pub fn render_board(&self) {
-        if self.board.is_empty() {
-            return;
+impl Serialize for State {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let mut seq = serializer.serialize_seq(Some(self.board.len()))?;
+
+        #[derive(Serialize)]
+        struct PositionAndTile<'a> {
+            position: &'a Position,
+            tile: &'a Tile,
         }
-
-        let left = self.board.keys().min_by_key(|p| p.0).unwrap().0 as i32;
-        let bottom = self.board.keys().min_by_key(|p| p.1).unwrap().1 as i32;
-        let right = self.board.keys().max_by_key(|p| p.0).unwrap().0 as i32;
-        let top = self.board.keys().max_by_key(|p| p.1).unwrap().1 as i32;
-
-        let padding = 25;
-        let tile_size = 150;
-
-        let width = (right - left) * (tile_size + padding) + padding;
-        let height = (top - bottom) * (tile_size + padding) + padding;
-
-        let offset = (-left, -bottom);
-
-        let app = app::App::default();
-
-        let mut window = Window::default()
-            .with_size(width, height)
-            .center_screen()
-            .with_label("nova-luna-tile-solver");
-        let mut frm = Frame::default().with_size(width, height);
-        frm.set_color(fltk::enums::Color::White);
-
-        let board = Arc::new(self.board.clone());
-        frm.draw(move |_f| {
-            for (pos, tile) in board.iter() {
-                let x = pos.0 as i32;
-                let y = pos.1 as i32;
-                let left = padding + (tile_size + padding) * (x + offset.0);
-                let top = padding + (tile_size + padding) * (y + offset.1);
-                draw::draw_rect_fill(left, top, tile_size, tile_size, tile.color.into());
-                draw::draw_rect_fill(left + 5, top + 5, 35, 35, fltk::enums::Color::White);
-                draw::set_font(Font::Helvetica, 24);
-                draw::set_draw_color(fltk::enums::Color::Black);
-                draw::draw_text(format!("{}", tile.cost).as_str(), left + 15, top + 30);
-
-                for (idx, t) in tile.tasks.iter().enumerate() {
-                    let (offset_x, offset_y) = match idx {
-                        0 => (tile_size / 2, 0),
-                        1 => (tile_size / 2, tile_size / 2),
-                        2 => (0, tile_size / 2),
-                        _ => unimplemented!(),
-                    };
-
-                    let circle_pos = (left + offset_x + 5, top + offset_y + 5);
-                    let circle_size = tile_size / 2 - 10;
-
-                    if t.solved {
-                        draw::set_draw_color(fltk::enums::Color::Light1);
-                    } else {
-                        draw::set_draw_color(fltk::enums::Color::White);
-                    }
-                    draw::draw_pie(
-                        circle_pos.0,
-                        circle_pos.1,
-                        circle_size,
-                        circle_size,
-                        0.0,
-                        360.0,
-                    );
-
-                    let color_size = 15;
-                    let colors = &t.colors;
-                    let middle_x = circle_pos.0 + circle_size / 2 - color_size / 2;
-                    let middle_y = circle_pos.1 + circle_size / 2 - color_size / 2;
-
-                    match colors.len() {
-                        1 => {
-                            draw::set_draw_color(colors[0].into());
-                            draw::draw_pie(middle_x, middle_y, color_size, color_size, 0.0, 360.0);
-                        }
-                        2 => {
-                            draw::set_draw_color(colors[0].into());
-                            draw::draw_pie(
-                                middle_x,
-                                middle_y + circle_size / 4,
-                                color_size,
-                                color_size,
-                                0.0,
-                                360.0,
-                            );
-                            draw::set_draw_color(colors[1].into());
-                            draw::draw_pie(
-                                middle_x,
-                                middle_y - circle_size / 4,
-                                color_size,
-                                color_size,
-                                0.0,
-                                360.0,
-                            );
-                        }
-                        3 => {
-                            draw::set_draw_color(colors[0].into());
-                            draw::draw_pie(
-                                middle_x,
-                                middle_y + circle_size / 4,
-                                color_size,
-                                color_size,
-                                0.0,
-                                360.0,
-                            );
-                            draw::set_draw_color(colors[1].into());
-                            draw::draw_pie(
-                                middle_x - circle_size / 5,
-                                middle_y - circle_size / 5,
-                                color_size,
-                                color_size,
-                                0.0,
-                                360.0,
-                            );
-                            draw::set_draw_color(colors[2].into());
-                            draw::draw_pie(
-                                middle_x + circle_size / 5,
-                                middle_y - circle_size / 5,
-                                color_size,
-                                color_size,
-                                0.0,
-                                360.0,
-                            );
-                        }
-                        4 => {
-                            draw::set_draw_color(colors[0].into());
-                            draw::draw_pie(
-                                middle_x + circle_size / 4,
-                                middle_y + circle_size / 4,
-                                color_size,
-                                color_size,
-                                0.0,
-                                360.0,
-                            );
-                            draw::set_draw_color(colors[1].into());
-                            draw::draw_pie(
-                                middle_x + circle_size / 4,
-                                middle_y - circle_size / 4,
-                                color_size,
-                                color_size,
-                                0.0,
-                                360.0,
-                            );
-                            draw::set_draw_color(colors[2].into());
-                            draw::draw_pie(
-                                middle_x - circle_size / 4,
-                                middle_y + circle_size / 4,
-                                color_size,
-                                color_size,
-                                0.0,
-                                360.0,
-                            );
-                            draw::set_draw_color(colors[3].into());
-                            draw::draw_pie(
-                                middle_x - circle_size / 4,
-                                middle_y - circle_size / 4,
-                                color_size,
-                                color_size,
-                                0.0,
-                                360.0,
-                            );
-                        }
-                        _ => unimplemented!(),
-                    }
-                }
-            }
-        });
-
-        window.end();
-        window.show();
-        app.run().unwrap();
+        for (position, tile) in &self.board {
+            seq.serialize_element(&PositionAndTile { position, tile })?;
+        }
+        seq.end()
     }
 }
 
