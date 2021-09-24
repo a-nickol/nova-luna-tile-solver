@@ -2,11 +2,16 @@
 name = "nova-luna-tile-solver"
 version = "0.1.0"
 edition = "2018"
+license-file = "LICENSE"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+
+[[bin]]
+name = "nova-luna-tile-solver"
 
 [dependencies]
 mcts = "0.3.0"
- serde = { version = "1.0", features = ["derive"] }
+serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 chrono = "0.4"
+clap = "3.0.0-beta.4"

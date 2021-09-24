@@ -23,7 +23,9 @@ To be defined.
 
 ## Usage
 
-To be defined.
+    cat resources/tiles.json | cargo run --release
+
+    cargo run --release -- --input resources/tiles.json
 
 ## How to test the software
 
