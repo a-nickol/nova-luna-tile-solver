@@ -4,6 +4,8 @@ This repository hosts a [Monte Carlo tree search] solver for the tile placing pa
 
 The development is still in progress.
 
+There are to parts for the application, the backend and the frontend. The backend is written in Rust. For the frontend I am still evaluating frameworks.
+
 [Monte Carlo tree search]: https://en.wikipedia.org/wiki/Monte_Carlo_tree_search
 [Nova Luna]: https://de.wikipedia.org/wiki/Nova_Luna
 
