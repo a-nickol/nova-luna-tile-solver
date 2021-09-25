@@ -9,7 +9,7 @@ The development is still in progress.
 
 ## Dependencies
 
-The solver depends uses Monte Carlo Tree Search and uses [MCTS](https://crates.io/crates/mcts) to accomplish this.
+The solver uses Monte Carlo Tree Search to find the best solution. It depends on [MCTS](https://crates.io/crates/mcts) to accomplish this.
 
 ## Installation
 
