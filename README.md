@@ -25,7 +25,7 @@ To be defined.
 
     cat resources/tiles.json | cargo run --release
 
-    cargo run --release -- --input resources/tiles.json
+    cargo run -- -i resources/tiles.json --moves --statistics
 
 ## How to test the software
 
