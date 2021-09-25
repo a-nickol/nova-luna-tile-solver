@@ -21,6 +21,12 @@ pub struct SolverParameters<'a> {
     pub print_moves: bool,
 }
 
+#[derive(Serialize)]
+struct Statistics {
+    solved_tasks: usize,
+    duration: Duration,
+}
+
 pub fn parse_string(input: String) -> Vec<Tile> {
     serde_json::from_str(&input).expect("cannot parse tiles")
 }
@@ -34,7 +40,7 @@ pub fn solve(param: SolverParameters) {
     let now = Instant::now();
     let num_tiles = param.tiles.len();
 
-    let state = State::with_tiles(param.tiles);
+    let state = State::with_tiles(param.tiles.clone());
     let mut mcts = MCTSManager::new(
         state.clone(),
         NovaLunaBoardGameMCTS,
@@ -48,6 +54,17 @@ pub fn solve(param: SolverParameters) {
 
     mcts.playout_n_parallel(num_playouts, 4);
 
+    let game = playout_best_moves(&param, num_tiles, state, &mut mcts);
+    print_statistics(&param, &now, &game);
+    output_game_state(&param, &game)
+}
+
+fn playout_best_moves(
+    param: &SolverParameters,
+    num_tiles: usize,
+    state: State,
+    mcts: &mut MCTSManager<NovaLunaBoardGameMCTS>,
+) -> State {
     if param.print_moves {
         println!("# Moves:");
     }
@@ -61,14 +78,11 @@ pub fn solve(param: SolverParameters) {
             );
         }
     }
+    game
+}
 
+fn print_statistics(param: &SolverParameters, now: &Instant, game: &State) {
     if param.print_statistics {
-        #[derive(Serialize)]
-        struct Statistics {
-            solved_tasks: usize,
-            duration: Duration,
-        }
-
         println!(
             "# Statistics:\n{}",
             serde_json::to_string(&Statistics {
@@ -78,7 +92,9 @@ pub fn solve(param: SolverParameters) {
             .expect("cannot print statistics")
         );
     }
+}
 
+fn output_game_state(param: &SolverParameters, game: &State) {
     let game_json = serde_json::to_string(&game).expect("cannot serialize game state");
 
     let mut write_to_std = true;
