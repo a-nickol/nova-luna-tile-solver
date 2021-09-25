@@ -8,9 +8,18 @@ use chrono::Utc;
 use mcts::transposition_table::*;
 use mcts::tree_policy::*;
 use mcts::*;
+use serde::Serialize;
 use std::io::Write;
 use std::path::Path;
-use std::time::Instant;
+use std::time::{Duration, Instant};
+
+pub struct SolverParameters<'a> {
+    pub tiles: Vec<Tile>,
+    pub output_file: Option<&'a str>,
+    pub output_dir: Option<&'a str>,
+    pub print_statistics: bool,
+    pub print_moves: bool,
+}
 
 pub fn parse_string(input: String) -> Vec<Tile> {
     serde_json::from_str(&input).expect("cannot parse tiles")
@@ -21,11 +30,11 @@ pub fn parse_file<P: AsRef<Path>>(path: P) -> Vec<Tile> {
     parse_string(unplaced_tiles)
 }
 
-pub fn solve(tiles: Vec<Tile>, output_file: Option<&str>, output_dir: Option<&str>) {
+pub fn solve(param: SolverParameters) {
     let now = Instant::now();
-    let num_tiles = tiles.len();
+    let num_tiles = param.tiles.len();
 
-    let state = State::with_tiles(tiles);
+    let state = State::with_tiles(param.tiles);
     let mut mcts = MCTSManager::new(
         state.clone(),
         NovaLunaBoardGameMCTS,
@@ -36,29 +45,45 @@ pub fn solve(tiles: Vec<Tile>, output_file: Option<&str>, output_dir: Option<&st
 
     let num_playouts = 100;
     eprintln!("Doing {} playouts.", num_playouts);
-    eprintln!();
 
     mcts.playout_n_parallel(num_playouts, 4);
 
-    eprintln!("Best Moves:");
-    eprintln!("-----------");
+    if param.print_moves {
+        println!("# Moves:");
+    }
     let mut game = state;
     for m in mcts.principal_variation(num_tiles) {
         game.make_move(&m);
-        eprintln!("{:?}", m);
+        if param.print_moves {
+            println!(
+                "{}",
+                serde_json::to_string(&m).expect("cannot serialize move")
+            );
+        }
     }
-    eprintln!("-----------");
-    eprintln!();
 
-    eprintln!("Statistics:");
-    eprintln!("-----------");
-    eprintln!("Solved tasks: {}", game.count_solved_tasks());
-    eprintln!("Duration: {:?}", now.elapsed());
-    eprintln!("-----------");
-    eprintln!();
+    if param.print_statistics {
+        #[derive(Serialize)]
+        struct Statistics {
+            solved_tasks: usize,
+            duration: Duration,
+        }
 
-    if let Some(dir) = output_dir {
-        if let Some(file) = output_file {
+        println!(
+            "# Statistics:\n{}",
+            serde_json::to_string(&Statistics {
+                solved_tasks: game.count_solved_tasks(),
+                duration: now.elapsed()
+            })
+            .expect("cannot print statistics")
+        );
+    }
+
+    let game_json = serde_json::to_string(&game).expect("cannot serialize game state");
+
+    let mut write_to_std = true;
+    if let Some(dir) = param.output_dir {
+        if let Some(file) = param.output_file {
             let file = file.replace(
                 "${datetime}",
                 &Utc::now().format("%Y-%m-%d-%H:%M:%S").to_string(),
@@ -66,10 +91,14 @@ pub fn solve(tiles: Vec<Tile>, output_file: Option<&str>, output_dir: Option<&st
 
             let path = Path::new(dir).join(file);
             eprintln!("writing board to \"{}\"", path.to_string_lossy());
-            let game_json = serde_json::to_string(&game).expect("cannot serialize game state");
             let mut file = std::fs::File::create(path).expect("cannot create file");
             file.write_all(game_json.as_bytes())
                 .expect("cannot write file");
+            write_to_std = false;
         }
+    }
+
+    if write_to_std {
+        println!("# Game board\n{}", game_json);
     }
 }

@@ -134,7 +134,7 @@ impl Tile {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize)]
 pub struct Move {
     tile: Tile,
     position: Position,

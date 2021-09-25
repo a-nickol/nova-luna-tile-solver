@@ -1,4 +1,5 @@
 use clap::{crate_authors, crate_name, crate_version, App, Arg};
+use nova_luna_tile_solver::SolverParameters;
 use std::io::Read;
 
 fn main() {
@@ -14,11 +15,20 @@ fn main() {
                 .takes_value(true)
         )
         .arg(
+            Arg::new("PRINT_STATISTICS")
+                .long("statistics")
+                .about("Activates the output of statistics.")
+        )
+        .arg(
+        Arg::new("PRINT_MOVES")
+            .long("moves")
+            .about("Activates the output of the best moves.")
+        )
+        .arg(
             Arg::new("OUTPUT_FILE")
                 .long("output")
                 .short('o')
-                .default_value("state-${datetime}.json")
-                .about("Write the final state of the best game board to this file.")
+                .about("Write the final state of the best game board to this file. \"${datetime}\" will be replaced with current date and time.")
                 .takes_value(true)
         )
         .arg(
@@ -32,23 +42,31 @@ fn main() {
 
     let output_file = matches.value_of("OUTPUT_FILE");
     let output_dir = matches.value_of("OUTPUT_DIR");
+    let print_statistics = matches.is_present("PRINT_STATISTICS");
+    let print_moves = matches.is_present("PRINT_MOVES");
 
-    match matches.value_of("INPUT_FILE") {
-        Some(path) => {
-            let tiles = nova_luna_tile_solver::parse_file(path);
-            nova_luna_tile_solver::solve(tiles, output_file, output_dir);
-        }
-        None => {
-            let stdin = std::io::stdin();
-            let mut input = vec![];
-            stdin
-                .lock()
-                .read_to_end(&mut input)
-                .expect("cannot read from stdin");
-            let tiles = nova_luna_tile_solver::parse_string(
-                String::from_utf8(input).expect("cannot read from stdin"),
-            );
-            nova_luna_tile_solver::solve(tiles, output_file, output_dir);
-        }
-    }
+    let param = SolverParameters {
+        tiles: vec![],
+        output_file,
+        output_dir,
+        print_statistics,
+        print_moves,
+    };
+
+    let tiles = match matches.value_of("INPUT_FILE") {
+        Some(path) => nova_luna_tile_solver::parse_file(path),
+        None => nova_luna_tile_solver::parse_string(read_from_stdin()),
+    };
+
+    nova_luna_tile_solver::solve(SolverParameters { tiles, ..param });
+}
+
+fn read_from_stdin() -> String {
+    let stdin = std::io::stdin();
+    let mut input = vec![];
+    stdin
+        .lock()
+        .read_to_end(&mut input)
+        .expect("cannot read from stdin");
+    String::from_utf8(input).expect("cannot read from stdin")
 }
