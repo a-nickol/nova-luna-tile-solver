@@ -53,13 +53,14 @@ pub fn solve(param: SolverParameters) {
     );
 
     eprintln!(
-        "Doing {} playouts with {} threads.",
+        "# MCTS\nDoing {} playouts with {} threads.",
         param.num_playouts, param.num_threads
     );
 
     mcts.playout_n_parallel(param.num_playouts, param.num_threads);
 
     if param.debug {
+        eprintln!("# Debug Moves");
         mcts.tree().debug_moves();
     }
 
