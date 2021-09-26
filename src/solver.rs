@@ -11,10 +11,11 @@ impl Evaluator<NovaLunaBoardGameMCTS> for StateEvaluator {
     fn evaluate_new_state(
         &self,
         state: &State,
-        _moves: &Vec<Move>,
+        moves: &Vec<Move>,
         _: Option<SearchHandle<NovaLunaBoardGameMCTS>>,
     ) -> (Vec<()>, i64) {
-        (vec![()], state.count_solved_tasks() as i64)
+        let player = (0..moves.len()).map(|_| ()).collect();
+        (player, state.count_solved_tasks() as i64)
     }
 
     fn evaluate_existing_state(
