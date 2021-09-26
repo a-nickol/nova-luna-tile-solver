@@ -4,14 +4,21 @@ This repository hosts a [Monte Carlo tree search] solver for the tile placing pa
 
 The development is still in progress.
 
-There are to parts for the application, the backend and the frontend. The backend is written in Rust. For the frontend I am still evaluating frameworks.
+The application consists of two parts:
+- `nova-luna-solver`
+- `nova-luna-gui`
 
 [Monte Carlo tree search]: https://en.wikipedia.org/wiki/Monte_Carlo_tree_search
 [Nova Luna]: https://de.wikipedia.org/wiki/Nova_Luna
 
 ## Dependencies
 
-The solver uses Monte Carlo Tree Search to find the best solution. It depends on [MCTS](https://crates.io/crates/mcts) to accomplish this.
+The `nova-luna-solver` uses Monte Carlo Tree Search to find the best solution. It depends on [MCTS] to accomplish this.
+
+The `nova-luna-gui` uses [yew] to display the game board.
+
+[MCTS]: https://crates.io/crates/mcts
+[yew]: https://github.com/yewstack/yew
 
 ## Installation
 
@@ -25,11 +32,14 @@ To be defined.
 
     cat resources/tiles.json | cargo run --release
 
-    cargo run -- -i resources/tiles.json --moves --statistics
+    cargo run --bin nova-luna-tile-solver -- --input resources/tiles.json --statistics --playouts 10000
 
 ## How to test the software
 
 The unit-tests of this repository can be used to test the functionality of this library.
+
+    cargo test
+    pre-commit run --all-files
 
 ## Known issues
 

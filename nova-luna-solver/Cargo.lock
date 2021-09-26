@@ -151,10 +151,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "nova-luna-gui"
-version = "0.1.0"
-
-[[package]]
 name = "nova-luna-tile-solver"
 version = "0.1.0"
 dependencies = [
