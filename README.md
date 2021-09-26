@@ -22,7 +22,18 @@ The `nova-luna-gui` uses [yew] to display the game board.
 
 ## Installation
 
-To be defined.
+    git clone git@github.com:a-nickol/nova-luna-tile-solver.git
+    cd nova-luna-tile-solver
+    cargo check
+
+### nova-luna-gui
+
+To run the GUI, you need to setup [trunk].
+
+    cargo install trunk wasm-bindgen-cli
+    rustup target add wasm32-unknown-unknown
+
+[trunk]: https://trunkrs.dev/
 
 ## Configuration
 
@@ -30,9 +41,16 @@ To be defined.
 
 ## Usage
 
+### nova-luna-solver
+
     cat resources/tiles.json | cargo run --release
 
     cargo run --bin nova-luna-tile-solver -- --input resources/tiles.json --statistics --playouts 10000
+
+### nova-luna-gui
+
+    cd nova-luna-gui
+    trunk serve
 
 ## How to test the software
 
