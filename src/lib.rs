@@ -19,6 +19,9 @@ pub struct SolverParameters<'a> {
     pub output_dir: Option<&'a str>,
     pub print_statistics: bool,
     pub print_moves: bool,
+    pub num_playouts: u32,
+    pub num_threads: usize,
+    pub debug: bool,
 }
 
 #[derive(Serialize)]
@@ -49,10 +52,16 @@ pub fn solve(param: SolverParameters) {
         ApproxTable::new(1024),
     );
 
-    let num_playouts = 100;
-    eprintln!("Doing {} playouts.", num_playouts);
+    eprintln!(
+        "Doing {} playouts with {} threads.",
+        param.num_playouts, param.num_threads
+    );
 
-    mcts.playout_n_parallel(num_playouts, 4);
+    mcts.playout_n_parallel(param.num_playouts, param.num_threads);
+
+    if param.debug {
+        mcts.tree().debug_moves();
+    }
 
     let game = playout_best_moves(&param, num_tiles, state, &mut mcts);
     print_statistics(&param, &now, &game);

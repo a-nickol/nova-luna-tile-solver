@@ -38,12 +38,39 @@ fn main() {
                 .about("Specifies the folder the final state of the board should be written to.")
                 .takes_value(true)
         )
+        .arg(
+            Arg::new("PLAYOUTS")
+                .long("playouts")
+                .short('p')
+                .default_value("100")
+                .about("Number of playouts to determine the best game board.")
+                .takes_value(true)
+        )
+        .arg(
+            Arg::new("THREADS")
+                .long("threads")
+                .short('t')
+                .default_value(&format!("{}", num_cpus::get()))
+                .about("Number of threads used for MCTS.")
+                .takes_value(true)
+        )
+        .arg(
+            Arg::new("DEBUG")
+                .long("debug")
+                .short('d')
+                .about("Show debug information for MCTS playouts.")
+        )
         .get_matches();
 
     let output_file = matches.value_of("OUTPUT_FILE");
     let output_dir = matches.value_of("OUTPUT_DIR");
     let print_statistics = matches.is_present("PRINT_STATISTICS");
     let print_moves = matches.is_present("PRINT_MOVES");
+    let num_threads = matches.value_of_t("THREADS").expect("cannot read threads");
+    let num_playouts = matches
+        .value_of_t("PLAYOUTS")
+        .expect("cannot read playouts");
+    let debug = matches.is_present("DEBUG");
 
     let param = SolverParameters {
         tiles: vec![],
@@ -51,6 +78,9 @@ fn main() {
         output_dir,
         print_statistics,
         print_moves,
+        num_playouts,
+        num_threads,
+        debug,
     };
 
     let tiles = match matches.value_of("INPUT_FILE") {
