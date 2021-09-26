@@ -60,6 +60,12 @@ fn main() {
                 .short('d')
                 .about("Show debug information for MCTS playouts.")
         )
+        .arg(
+        Arg::new("EXPLORATION_CONSTANT")
+            .long("utc")
+            .default_value("2.0")
+            .about("Exploration constant used as MCTS UTC policy constant.")
+    )
         .get_matches();
 
     let output_file = matches.value_of("OUTPUT_FILE");
@@ -70,6 +76,9 @@ fn main() {
     let num_playouts = matches
         .value_of_t("PLAYOUTS")
         .expect("cannot read playouts");
+    let exploration_constant = matches
+        .value_of_t("EXPLORATION_CONSTANT")
+        .expect("cannot read UTC policy constant");
     let debug = matches.is_present("DEBUG");
 
     let param = SolverParameters {
@@ -81,6 +90,7 @@ fn main() {
         num_playouts,
         num_threads,
         debug,
+        exploration_constant,
     };
 
     let tiles = match matches.value_of("INPUT_FILE") {

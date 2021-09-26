@@ -22,6 +22,7 @@ pub struct SolverParameters<'a> {
     pub num_playouts: u32,
     pub num_threads: usize,
     pub debug: bool,
+    pub exploration_constant: f64,
 }
 
 #[derive(Serialize)]
@@ -48,7 +49,7 @@ pub fn solve(param: SolverParameters) {
         state.clone(),
         NovaLunaBoardGameMCTS,
         StateEvaluator,
-        UCTPolicy::new(2.0),
+        UCTPolicy::new(param.exploration_constant),
         ApproxTable::new(1024),
     );
 
