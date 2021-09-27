@@ -1,6 +1,5 @@
 [workspace]
 
 members = [
-    "nova-luna-gui",
     "nova-luna-solver",
 ]
