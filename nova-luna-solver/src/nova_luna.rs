@@ -67,10 +67,12 @@ impl Task {
 
     fn search_for_adjacent_tiles_matching_color(
         position: Position,
+        without_position: Position,
         color: Color,
         board: &HashMap<Position, Tile>,
     ) -> Vec<Position> {
         let mut visited_positions = HashSet::new();
+        visited_positions.insert(without_position);
         let mut unvisited_positions = vec![position];
         let mut adjacent_tiles = vec![];
         while let Some(pos) = unvisited_positions.pop() {
@@ -97,7 +99,8 @@ impl Task {
         let mut map = HashMap::new();
         for p in pos.adjacent() {
             if let Some(tile) = state.get(&p) {
-                let mut vec = Task::search_for_adjacent_tiles_matching_color(p, tile.color, state);
+                let mut vec =
+                    Task::search_for_adjacent_tiles_matching_color(p, pos, tile.color, state);
                 let idx = vec.iter().position(|p| pos == *p);
                 if let Some(idx) = idx {
                     vec.remove(idx);
@@ -416,5 +419,22 @@ mod test {
         assert!(!task.solved);
 
         assert_eq!(1, state.count_solved_tasks())
+    }
+
+    #[test]
+    fn solve_task_with_large_tile_group() {
+        let tile = Tile::new(
+            1,
+            Color::Teal,
+            vec![Task::new(vec![Color::Teal, Color::Teal, Color::Teal])],
+        );
+
+        let mut state = State::with_tiles(vec![tile.clone(), tile.clone(), tile.clone()]);
+
+        state.make_move(&super::Move::new(tile.clone(), Position(0, 0)));
+        state.make_move(&super::Move::new(tile.clone(), Position(1, 0)));
+        state.make_move(&super::Move::new(tile.clone(), Position(2, 0)));
+
+        assert_eq!(0, state.count_solved_tasks());
     }
 }

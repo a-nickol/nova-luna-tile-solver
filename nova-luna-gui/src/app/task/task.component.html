@@ -1,5 +1,5 @@
 <div class="h-24 w-24">
-  <div *ngIf="task != null" class="h-24 w-24 bg-gray-50 border-4 border-black rounded-full flex items-center justify-center">
+  <div *ngIf="task != null" class="h-24 w-24 bg-gray-50 border-black rounded-full flex items-center justify-center" [class.border-4]="task.solved">
     <div class="h-20 w-20 rounded-full flex items-center justify-center">
       <div class="h-16 w-16 rounded-full grid grid-cols-2 gap-4 bg-gray-50">
         <div class="flex items-center justify-center" [class]="column(i)" *ngFor="let c of task.colors; index as i">
