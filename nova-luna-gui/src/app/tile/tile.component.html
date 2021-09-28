@@ -1,0 +1,6 @@
+<div class="absolute flex flex-auto flex-row justify-between content-between flex-wrap p-4 border-4 text-gray-100 h-64 w-64" [class]="tile?.tile?.color | tileBgColor" [style]="position()">
+  <div class="text-7xl rounded-full h-24 w-24 flex items-center justify-center font-bold bg-gray-50 text-gray-900">{{ tile?.tile?.cost }}</div>
+  <app-task [task]="getTask(0)"></app-task>
+  <app-task [task]="getTask(2)"></app-task>
+  <app-task [task]="getTask(1)"></app-task>
+</div>
