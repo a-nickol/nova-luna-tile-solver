@@ -28,16 +28,16 @@ export class GameBoardComponent implements OnInit {
           minY = Math.min(minY, b.position[1]);
           maxX = Math.max(maxX, b.position[0]);
           maxY = Math.max(maxY, b.position[1]);
-          boardMap.set(b.position, b);
+          boardMap.set(`${b.position[0]}_${b.position[1]}`, b);
         });
 
         let fullBoard = [];
         for (let x = minX; x <= maxX; ++x) {
           let row = [];
           for (let y = minY; y <= maxY; ++y) {
-            let position = [x, y];
+            let position = `${x}_${y}`;
             let t = boardMap.get(position);
-            if (t != undefined) {
+            if (t != null) {
               row.push(t);
             } else {
               row.push({ position, tile: undefined });

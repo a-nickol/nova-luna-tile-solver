@@ -1,3 +1,6 @@
-<div *ngFor="let tileRow of board$ | async">
+<div
+  *ngFor="let tileRow of board$ | async"
+  class="flex items-center justify-center gap-4 pb-4"
+>
   <app-tile *ngFor="let tile of tileRow" [tile]="tile"></app-tile>
 </div>

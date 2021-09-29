@@ -1,33 +1,38 @@
-<div
-  class="
-    flex flex-auto flex-row flex-wrap
-    justify-between
-    content-between
-    p-4
-    border-4
-    text-gray-100
-    h-64
-    w-64
-  "
-  [class]="tile?.tile?.color | tileBgColor"
->
-  <div
+<ng-container *ngIf="tile?.tile != null; else emptyTile">
+  <span
     class="
-      text-7xl
-      rounded-full
-      h-24
-      w-24
-      flex
-      items-center
-      justify-center
-      font-bold
-      bg-gray-50
-      text-gray-900
+      flex flex-auto flex-row flex-wrap
+      justify-between
+      content-between
+      p-4
+      border-4
+      text-gray-100
+      h-64
+      w-64
     "
+    [class]="tile?.tile?.color | tileBgColor"
   >
-    {{ tile?.tile?.cost }}
-  </div>
-  <app-task [task]="getTask(0)"></app-task>
-  <app-task [task]="getTask(2)"></app-task>
-  <app-task [task]="getTask(1)"></app-task>
-</div>
+    <span
+      class="
+        text-7xl
+        rounded-full
+        h-24
+        w-24
+        flex
+        items-center
+        justify-center
+        font-bold
+        bg-gray-50
+        text-gray-900
+      "
+    >
+      {{ tile?.tile?.cost }}
+    </span>
+    <app-task [task]="getTask(0)"></app-task>
+    <app-task [task]="getTask(2)"></app-task>
+    <app-task [task]="getTask(1)"></app-task>
+  </span>
+</ng-container>
+<ng-template #emptyTile>
+  <span class="p-4 text-gray-100 flex h-64 w-64"></span>
+</ng-template>
