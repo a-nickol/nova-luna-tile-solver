@@ -6,8 +6,9 @@
 > Details can be found in our [LICENSE](LICENSE).
 
 There are two primary ways to help:
- - Using the issue tracker, and
- - Changing the code-base.
+
+- Using the issue tracker, and
+- Changing the code-base.
 
 ## Using the issue tracker
 

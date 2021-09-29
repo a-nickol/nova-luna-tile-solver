@@ -1,6 +1,6 @@
 import { Tile } from "./tile";
 
-export interface PlayedTile {
+export interface GameBoardField {
   position: number[];
-  tile: Tile;
+  tile?: Tile;
 }

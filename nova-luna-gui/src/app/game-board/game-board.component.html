@@ -1,4 +1,3 @@
-<app-tile
-        *ngFor="let tile of board$ | async"
-        [tile]="tile"
-></app-tile>
+<div *ngFor="let tileRow of board$ | async">
+  <app-tile *ngFor="let tile of tileRow" [tile]="tile"></app-tile>
+</div>

@@ -1,23 +1,24 @@
 # nova-luna-tile-solver [![Build Status](https://app.travis-ci.com/anickol/nova-luna-tile-solver.svg?branch=main)](https://app.travis-ci.com/anickol/nova-luna-tile-solver)
 
-This repository hosts a [Monte Carlo tree search] solver for the tile placing part of the [Nova Luna] board game.
+This repository hosts a [monte carlo tree search] solver for the tile placing part of the [nova luna] board game.
 
 The development is still in progress.
 
 The application consists of two parts:
+
 - `nova-luna-solver`
 - `nova-luna-gui`
 
-[Monte Carlo tree search]: https://en.wikipedia.org/wiki/Monte_Carlo_tree_search
-[Nova Luna]: https://de.wikipedia.org/wiki/Nova_Luna
+[monte carlo tree search]: https://en.wikipedia.org/wiki/Monte_Carlo_tree_search
+[nova luna]: https://de.wikipedia.org/wiki/Nova_Luna
 
 ## Dependencies
 
-The `nova-luna-solver` uses Monte Carlo Tree Search to find the best solution. It depends on [MCTS] to accomplish this.
+The `nova-luna-solver` uses Monte Carlo Tree Search to find the best solution. It depends on [mcts] to accomplish this.
 
 The `nova-luna-gui` uses [yew] to display the game board.
 
-[MCTS]: https://crates.io/crates/mcts
+[mcts]: https://crates.io/crates/mcts
 [yew]: https://github.com/yewstack/yew
 
 ## Installation

@@ -1,15 +1,15 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import { Pipe, PipeTransform } from "@angular/core";
 
 @Pipe({
-  name: 'tileBgColor'
+  name: "tileBgColor",
 })
 export class TileBgColorPipe implements PipeTransform {
   transform(color: string | undefined, ...args: unknown[]): string {
     switch (color) {
       case "Blue":
-        return "bg-blue-700"
+        return "bg-blue-700";
       case "Yellow":
-        return "bg-yellow-300 text-gray-800"
+        return "bg-yellow-300 text-gray-800";
       case "Teal":
         return "bg-green-400";
       case "Red":
