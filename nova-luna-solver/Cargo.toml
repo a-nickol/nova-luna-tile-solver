@@ -7,7 +7,10 @@ license-file = "LICENSE"
 [lib]
 
 [[bin]]
-name = "nova-luna-tile-solver"
+name = "nova-luna-solver-cli"
+
+[[bin]]
+name = "nova-luna-solver-backend"
 
 [dependencies]
 mcts = "0.3.0"
