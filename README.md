@@ -1,4 +1,4 @@
-# nova-luna-tile-solver [![Build Status](https://app.travis-ci.com/anickol/nova-luna-tile-solver.svg?branch=main)](https://app.travis-ci.com/anickol/nova-luna-tile-solver)
+# nova-luna-tile-solver [![Build Status](https://app.travis-ci.com/a-nickol/nova-luna-tile-solver.svg?branch=main)](https://app.travis-ci.com/a-nickol/nova-luna-tile-solver)
 
 This repository hosts a [monte carlo tree search] solver for the tile placing part of the [nova luna] board game.
 
@@ -14,27 +14,37 @@ The application consists of two parts:
 
 ## Dependencies
 
-The `nova-luna-solver` uses Monte Carlo Tree Search to find the best solution. It depends on [mcts] to accomplish this.
+The `nova-luna-solver` is written in Rust and uses Monte Carlo Tree Search to find the best solution. It depends on [mcts] to accomplish this.
 
-The `nova-luna-gui` uses [yew] to display the game board.
+The `nova-luna-gui` uses [Angular][angular] to display the game board.
 
 [mcts]: https://crates.io/crates/mcts
-[yew]: https://github.com/yewstack/yew
+[angular]: https://angular.io/
 
 ## Installation
 
+Prerequisite for the installation process:
+
+- [Rust toolchain](https://rustup.rs/) installed
+- [Angular cli](https://angular.io/cli) installed
+
+Download the sources
+
     git clone git@github.com:a-nickol/nova-luna-tile-solver.git
     cd nova-luna-tile-solver
+
+Build the rust backend
+
+    cd nova-luna-solver
     cargo check
+    cd ..
 
-### nova-luna-gui
+Build the angular frontend
 
-To run the GUI, you need to setup [trunk].
-
-    cargo install trunk wasm-bindgen-cli
-    rustup target add wasm32-unknown-unknown
-
-[trunk]: https://trunkrs.dev/
+    cd nova-luna-gui
+    npm install
+    ng build
+    cd ..
 
 ## Configuration
 
@@ -44,14 +54,15 @@ To be defined.
 
 ### nova-luna-solver
 
+    cd nova-luna-solver
     cat resources/tiles.json | cargo run --release
-
     cargo run --bin nova-luna-tile-solver -- --input resources/tiles.json --statistics --playouts 10000
+    cd ..
 
 ### nova-luna-gui
 
     cd nova-luna-gui
-    trunk serve
+    ng serve
 
 ## How to test the software
 
