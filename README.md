@@ -55,8 +55,7 @@ To be defined.
 ### nova-luna-solver
 
     cd nova-luna-solver
-    cat resources/tiles.json | cargo run --release
-    cargo run --bin nova-luna-tile-solver -- --input resources/tiles.json --statistics --playouts 10000
+    cargo run --bin nova-luna-solver-cli -- --input resources/tiles.json --statistics --playouts 10000
     cd ..
 
 ### nova-luna-gui
