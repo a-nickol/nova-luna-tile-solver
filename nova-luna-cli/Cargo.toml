@@ -1,0 +1,11 @@
+[package]
+name = "nova-luna-cli"
+version = "0.1.0"
+edition = "2018"
+license-file = "LICENSE"
+
+[dependencies]
+nova-luna-solver = { path = "../nova-luna-solver" }
+
+clap = "3.0.0-beta.4"
+num_cpus = "1.13.0"

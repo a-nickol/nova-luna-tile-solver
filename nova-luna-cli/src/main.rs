@@ -1,5 +1,5 @@
 use clap::{crate_authors, crate_name, crate_version, App, Arg};
-use nova_luna_tile_solver::SolverParameters;
+use nova_luna_solver::SolverParameters;
 use std::io::Read;
 
 fn main() {
@@ -94,11 +94,11 @@ fn main() {
     };
 
     let tiles = match matches.value_of("INPUT_FILE") {
-        Some(path) => nova_luna_tile_solver::parse_file(path),
-        None => nova_luna_tile_solver::parse_string(read_from_stdin()),
+        Some(path) => nova_luna_solver::parse_file(path),
+        None => nova_luna_solver::parse_string(read_from_stdin()),
     };
 
-    nova_luna_tile_solver::solve(SolverParameters { tiles, ..param });
+    nova_luna_solver::solve(SolverParameters { tiles, ..param });
 }
 
 fn read_from_stdin() -> String {

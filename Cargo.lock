@@ -151,16 +151,27 @@ dependencies = [
 ]
 
 [[package]]
-name = "nova-luna-tile-solver"
+name = "nova-luna-cli"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "nova-luna-solver",
+ "num_cpus",
+]
+
+[[package]]
+name = "nova-luna-solver"
 version = "0.1.0"
 dependencies = [
  "chrono",
- "clap",
  "mcts",
- "num_cpus",
  "serde",
  "serde_json",
 ]
+
+[[package]]
+name = "nova-luna-tile-backend"
+version = "0.1.0"
 
 [[package]]
 name = "num-integer"

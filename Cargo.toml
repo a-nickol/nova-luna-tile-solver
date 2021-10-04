@@ -2,4 +2,6 @@
 
 members = [
     "nova-luna-solver",
+    "nova-luna-backend",
+    "nova-luna-cli",
 ]
