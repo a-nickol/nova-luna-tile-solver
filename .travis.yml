@@ -26,7 +26,3 @@ before_install:
 
 before_script:
   - pre-commit run --all-files
-
-script:
-  - cd nova-luna-solver
-  - cargo build --verbose; cargo test --verbose

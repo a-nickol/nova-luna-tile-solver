@@ -5,3 +5,5 @@ edition = "2018"
 license-file = "LICENSE"
 
 [dependencies]
+nova-luna-solver = { path = "../nova-luna-solver" }
+rocket = { version = "0.5.0-rc.1", features = ["json"] }

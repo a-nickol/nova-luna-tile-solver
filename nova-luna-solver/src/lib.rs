@@ -1,4 +1,4 @@
-mod nova_luna;
+pub mod nova_luna;
 mod solver;
 
 use crate::nova_luna::{State, Tile};
@@ -40,7 +40,7 @@ pub fn parse_file<P: AsRef<Path>>(path: P) -> Vec<Tile> {
     parse_string(unplaced_tiles)
 }
 
-pub fn solve(param: SolverParameters) {
+pub fn solve(param: SolverParameters) -> State {
     let now = Instant::now();
     let num_tiles = param.tiles.len();
 
@@ -67,7 +67,7 @@ pub fn solve(param: SolverParameters) {
 
     let game = playout_best_moves(&param, num_tiles, state, &mut mcts);
     print_statistics(&param, &now, &game);
-    output_game_state(&param, &game)
+    game
 }
 
 fn playout_best_moves(
@@ -105,8 +105,12 @@ fn print_statistics(param: &SolverParameters, now: &Instant, game: &State) {
     }
 }
 
-fn output_game_state(param: &SolverParameters, game: &State) {
-    let game_json = serde_json::to_string(&game).expect("cannot serialize game state");
+pub fn game_state_as_json(game: &State) -> String {
+    serde_json::to_string(&game).expect("cannot serialize game state")
+}
+
+pub fn output_game_state(param: &SolverParameters, game: &State) {
+    let game_json = game_state_as_json(game);
 
     let mut write_to_std = true;
     if let Some(dir) = param.output_dir {
